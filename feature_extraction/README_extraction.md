@@ -84,7 +84,7 @@ This will:
 
 Typical runtime: ~5-10 minutes for the full FER-2013 dataset.
 
-## Best Preprocessing Configuration
+## Best Preprocessing Configuration for dlib
 
 Determined by tests across upscaling × CLAHE conditions:
 
