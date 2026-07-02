@@ -3,18 +3,16 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  # Python
-  - python==3.12.12
-  # conda-forge packages
-  - numpy==1.26.4
-  - dlib==19.24.2
-  # pip-only packages
+  - python=3.12.12
+  - pip
+  - ipykernel
   - pip:
     - cmake==4.3.4
     - imutils==0.5.4
     - matplotlib==3.11.0
     - opencv-python==4.11.0.86
     - scipy==1.13.1
+    - dlib==19.24.2
 
 # Notes
 # ─────

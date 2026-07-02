@@ -2,8 +2,7 @@ FINAL MODEL RESULTS SUMMARY
 ==================================================
 Condition: up_no_cl  |  Scale: clip2.0  |  n_features: 26
 
-LINEAR SVM — official metrics (loaded directly from
-linear_svm_ablation.py's saved results, NOT retrained)
+LINEAR SVM
   config: C=1000.0, class_weight=balanced, lr=0.01, decay=0.1
   acc=0.4674  mac=0.3917
     Angry      recall=0.308
@@ -14,25 +13,7 @@ linear_svm_ablation.py's saved results, NOT retrained)
     Surprise   recall=0.664
     Neutral    recall=0.460
 
-LINEAR SVM — diagnostic retrain (same hyperparameters,
-retrained in isolation for the learning curve and
-misclassification plot only — NOT the official result)
-  acc=0.4643  mac=0.3890
-  difference from official (ablation-exact) numbers: Δacc=-0.0032  Δmac=-0.0027
-  This gap is expected, not an error: linear_svm_ablation.py
-  trains hundreds of hyperparameter combinations in sequence,
-  sharing one global NumPy RNG stream (seeded once at the
-  script's start). Each combination's per-epoch
-  np.random.permutation() call advances that shared stream,
-  so by the time the ablation reaches the winning combination
-  (C=1000, up_no_cl, clip2, balanced), thousands of prior draws
-  from unrelated combinations have already been consumed.
-  Retraining that exact config in isolation here seeds the RNG
-  fresh, so the batch-shuffle order differs — giving a slightly
-  different (but comparable) SGD trajectory and final result,
-  even with an identical seed, hyperparameters, and code.
-
-RBF SVM
+RBF SVM (courselib cvxopt)
   config: C=10.0, sigma=2.8958, N_train=9996
   acc=0.5343  mac=0.4652
     Angry      recall=0.448
