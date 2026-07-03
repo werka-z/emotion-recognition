@@ -1,0 +1,26 @@
+Device: cuda
+Loaded /content/emotion-recognition/emotion-recognition/CNN/cnn_resnet_se_mixup_ema/checkpoints/best.pt (trained 60 epochs, val_acc 0.6871) | TTA=none
+
+===== Test results =====
+Accuracy     : 0.6902
+Macro F1     : 0.6606
+Weighted F1  : 0.6880
+
+Per-class report:
+              precision    recall  f1-score   support
+
+       angry     0.5894    0.6639    0.6244       958
+     disgust     0.4938    0.7117    0.5830       111
+        fear     0.5517    0.4688    0.5069      1024
+       happy     0.9061    0.8703    0.8879      1774
+     neutral     0.6478    0.6861    0.6664      1233
+         sad     0.5973    0.5293    0.5612      1247
+    surprise     0.7432    0.8532    0.7944       831
+
+    accuracy                         0.6902      7178
+   macro avg     0.6470    0.6833    0.6606      7178
+weighted avg     0.6900    0.6902    0.6880      7178
+
+
+Confusion matrix image: /content/emotion-recognition/emotion-recognition/CNN/cnn_resnet_se_mixup_ema/results/confusion_matrix.png
+Metrics sidecar: /content/emotion-recognition/emotion-recognition/CNN/cnn_resnet_se_mixup_ema/results/metrics.json, /content/emotion-recognition/emotion-recognition/CNN/cnn_resnet_se_mixup_ema/results/metrics.txt

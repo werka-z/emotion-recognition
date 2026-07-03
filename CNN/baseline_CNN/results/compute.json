@@ -1,0 +1,8 @@
+{
+  "forward_flops_per_sample": 686853632.0,
+  "train_flops_per_sample": 2060560896.0,
+  "samples_per_epoch": 25856,
+  "epochs": 40,
+  "total_samples_seen": 1034240,
+  "total_train_flops": 2131114501079040.0
+}

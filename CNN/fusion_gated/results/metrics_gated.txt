@@ -1,0 +1,28 @@
+Accuracy     : 0.6804
+Macro F1     : 0.6375
+Weighted F1  : 0.6818
+
+Per-class report:
+              precision    recall  f1-score   support
+
+       angry     0.6191    0.6430    0.6308       958
+     disgust     0.2989    0.7568    0.4286       111
+        fear     0.6064    0.4619    0.5244      1024
+       happy     0.9130    0.8286    0.8688      1774
+     neutral     0.6026    0.7024    0.6487      1233
+         sad     0.5846    0.5373    0.5600      1247
+    surprise     0.7589    0.8484    0.8011       831
+
+    accuracy                         0.6804      7178
+   macro avg     0.6262    0.6826    0.6375      7178
+weighted avg     0.6924    0.6804    0.6818      7178
+
+Confusion matrix, row-normalized 0-1 (rows = true, cols = pred):
+            angry  disgus    fear   happy  neutra     sad  surpri
+    angry   0.643   0.045   0.064   0.021   0.102   0.104   0.021
+  disgust   0.162   0.757   0.018   0.009   0.018   0.018   0.018
+     fear   0.111   0.029   0.462   0.014   0.118   0.166   0.100
+    happy   0.021   0.025   0.013   0.829   0.056   0.025   0.032
+  neutral   0.046   0.026   0.045   0.045   0.702   0.119   0.015
+      sad   0.107   0.031   0.095   0.022   0.188   0.537   0.020
+ surprise   0.024   0.011   0.057   0.026   0.019   0.014   0.848

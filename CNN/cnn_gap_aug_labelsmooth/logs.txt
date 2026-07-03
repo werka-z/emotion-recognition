@@ -1,0 +1,53 @@
+Device: mps
+Train batches: 404 | Val batches: 45
+Model params: 4.69M
+/Users/weronikazygis/Desktop/lmu/emotion-recognition/CNN/mod/train.py:62: UserWarning: mods argument is not needed anymore, you can stop passing it
+  with FlopCounterMode(model, display=False) as fc:
+Forward FLOPs/sample: 9.369e+08 | Train (fwd+bwd) FLOPs/sample: 2.811e+09
+Class weights: {'angry': 1.02, 'disgust': 9.417, 'fear': 1.005, 'happy': 0.569, 'neutral': 0.829, 'sad': 0.847, 'surprise': 1.291}
+Epoch  1/40 | train loss 2.0610 acc 0.1983 | val loss 2.2118 acc 0.1885 | lr 5.0e-04 | 69s  <- saved best
+Epoch  2/40 | train loss 1.8546 acc 0.3585 | val loss 1.8637 acc 0.4432 | lr 1.0e-03 | 71s  <- saved best
+Epoch  3/40 | train loss 1.7648 acc 0.4282 | val loss 1.6741 acc 0.4840 | lr 1.0e-03 | 73s  <- saved best
+Epoch  4/40 | train loss 1.7115 acc 0.4709 | val loss 1.6289 acc 0.4969 | lr 9.9e-04 | 71s  <- saved best
+Epoch  5/40 | train loss 1.6703 acc 0.4932 | val loss 1.5961 acc 0.5753 | lr 9.9e-04 | 70s  <- saved best
+Epoch  6/40 | train loss 1.6478 acc 0.5071 | val loss 1.6754 acc 0.4620 | lr 9.7e-04 | 68s
+Epoch  7/40 | train loss 1.6197 acc 0.5266 | val loss 1.5648 acc 0.5537 | lr 9.6e-04 | 67s
+Epoch  8/40 | train loss 1.5952 acc 0.5404 | val loss 1.6341 acc 0.5763 | lr 9.4e-04 | 67s  <- saved best
+Epoch  9/40 | train loss 1.5742 acc 0.5501 | val loss 1.5266 acc 0.5606 | lr 9.2e-04 | 66s
+Epoch 10/40 | train loss 1.5555 acc 0.5623 | val loss 1.5262 acc 0.5784 | lr 9.0e-04 | 67s  <- saved best
+Epoch 11/40 | train loss 1.5398 acc 0.5764 | val loss 1.5362 acc 0.5645 | lr 8.7e-04 | 68s
+Epoch 12/40 | train loss 1.5250 acc 0.5860 | val loss 1.5019 acc 0.6307 | lr 8.4e-04 | 69s  <- saved best
+Epoch 13/40 | train loss 1.5033 acc 0.5967 | val loss 1.5155 acc 0.6014 | lr 8.1e-04 | 67s
+Epoch 14/40 | train loss 1.4899 acc 0.6056 | val loss 1.5296 acc 0.6178 | lr 7.8e-04 | 67s
+Epoch 15/40 | train loss 1.4695 acc 0.6165 | val loss 1.4545 acc 0.6188 | lr 7.4e-04 | 65s
+Epoch 16/40 | train loss 1.4573 acc 0.6245 | val loss 1.5223 acc 0.6240 | lr 7.1e-04 | 66s
+Epoch 17/40 | train loss 1.4364 acc 0.6306 | val loss 1.4611 acc 0.6307 | lr 6.7e-04 | 65s
+Epoch 18/40 | train loss 1.4220 acc 0.6427 | val loss 1.4537 acc 0.6352 | lr 6.3e-04 | 66s  <- saved best
+Epoch 19/40 | train loss 1.4048 acc 0.6494 | val loss 1.4358 acc 0.6380 | lr 5.9e-04 | 66s  <- saved best
+Epoch 20/40 | train loss 1.3862 acc 0.6615 | val loss 1.4276 acc 0.6348 | lr 5.5e-04 | 67s
+Epoch 21/40 | train loss 1.3744 acc 0.6666 | val loss 1.4339 acc 0.6627 | lr 5.1e-04 | 66s  <- saved best
+Epoch 22/40 | train loss 1.3580 acc 0.6759 | val loss 1.4079 acc 0.6589 | lr 4.7e-04 | 66s
+Epoch 23/40 | train loss 1.3426 acc 0.6856 | val loss 1.4317 acc 0.6679 | lr 4.3e-04 | 66s  <- saved best
+Epoch 24/40 | train loss 1.3310 acc 0.6902 | val loss 1.4357 acc 0.6596 | lr 3.9e-04 | 65s
+Epoch 25/40 | train loss 1.3163 acc 0.7013 | val loss 1.4361 acc 0.6561 | lr 3.5e-04 | 66s
+Epoch 26/40 | train loss 1.3025 acc 0.7086 | val loss 1.4064 acc 0.6749 | lr 3.1e-04 | 66s  <- saved best
+Epoch 27/40 | train loss 1.2803 acc 0.7181 | val loss 1.4100 acc 0.6787 | lr 2.8e-04 | 66s  <- saved best
+Epoch 28/40 | train loss 1.2721 acc 0.7242 | val loss 1.3999 acc 0.6777 | lr 2.4e-04 | 66s
+Epoch 29/40 | train loss 1.2583 acc 0.7303 | val loss 1.4021 acc 0.6655 | lr 2.1e-04 | 66s
+Epoch 30/40 | train loss 1.2408 acc 0.7399 | val loss 1.4119 acc 0.6784 | lr 1.8e-04 | 66s
+Epoch 31/40 | train loss 1.2348 acc 0.7433 | val loss 1.4102 acc 0.6836 | lr 1.5e-04 | 66s  <- saved best
+Epoch 32/40 | train loss 1.2179 acc 0.7553 | val loss 1.4070 acc 0.6780 | lr 1.2e-04 | 66s
+Epoch 33/40 | train loss 1.2150 acc 0.7575 | val loss 1.4176 acc 0.6815 | lr 1.0e-04 | 66s
+Epoch 34/40 | train loss 1.2035 acc 0.7683 | val loss 1.4147 acc 0.6801 | lr 7.9e-05 | 67s
+Epoch 35/40 | train loss 1.2005 acc 0.7644 | val loss 1.4201 acc 0.6774 | lr 6.1e-05 | 65s
+Epoch 36/40 | train loss 1.1927 acc 0.7687 | val loss 1.4173 acc 0.6850 | lr 4.7e-05 | 65s  <- saved best
+Epoch 37/40 | train loss 1.1852 acc 0.7757 | val loss 1.4091 acc 0.6864 | lr 3.5e-05 | 65s  <- saved best
+Epoch 38/40 | train loss 1.1907 acc 0.7704 | val loss 1.4126 acc 0.6861 | lr 2.7e-05 | 65s
+Epoch 39/40 | train loss 1.1749 acc 0.7793 | val loss 1.4147 acc 0.6808 | lr 2.2e-05 | 66s
+Epoch 40/40 | train loss 1.1815 acc 0.7784 | val loss 1.4154 acc 0.6787 | lr 2.0e-05 | 65s
+
+Best val accuracy: 0.6864
+Best checkpoint: /Users/weronikazygis/Desktop/lmu/emotion-recognition/CNN/mod/checkpoints/best.pt
+Training history: /Users/weronikazygis/Desktop/lmu/emotion-recognition/CNN/mod/results/history.json
+Learning curve: /Users/weronikazygis/Desktop/lmu/emotion-recognition/CNN/mod/results/learning_curve.png
+Total training compute: 2.905e+15 FLOPs (1033560 samples seen)
