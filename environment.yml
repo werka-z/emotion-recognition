@@ -6,17 +6,19 @@ dependencies:
   - python=3.12.12
   - pip
   - ipykernel
+  - dlib=19.24.2
   - pip:
     - cmake==4.3.4
     - imutils==0.5.4
     - matplotlib==3.11.0
     - opencv-python==4.11.0.86
     - scipy==1.13.1
-    - dlib==19.24.2
-
 # Notes
 # ─────
-# Tested on MacBook with Apple M5 chip
+# Tested on MacBook with Apple Silicon
+#
+# dlib is installed via conda-forge (not pip) to avoid CMake build issues
+# with newer versions of CMake that removed backwards compatibility.
 #
 # To recreate this environment:
 #   conda env create -f environment.yml

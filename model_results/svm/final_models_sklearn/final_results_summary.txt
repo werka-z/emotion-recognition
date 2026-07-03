@@ -3,7 +3,7 @@ RBF SVM — sklearn SVC (libsvm SMO, full dataset)
 C=10.0  sigma=2.8958  gamma=0.059626
 N_train=22578 (full FER-2013 training set)
 Solver: sklearn SVC (libsvm SMO — no full kernel matrix)
-Training time: 7.1s
+Training time: 6.9s
 Total support vectors: 17375
 
 acc=0.5697  mac=0.5133
