@@ -14,7 +14,13 @@ import torch
 
 from CNN.baseline_CNN.model import EmotionCNN
 from CNN.baseline_CNN.data_utils import get_test_loader
-from visualize import plot_confusion_matrix
+from CNN.visualize import plot_confusion_matrix
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO_ROOT = os.path.dirname(os.path.dirname(_HERE))
+_DEFAULT_DATA = os.path.join(_REPO_ROOT, "data")
+_DEFAULT_CKPT = os.path.join(_HERE, "checkpoints", "best.pt")
+_DEFAULT_RESULTS = os.path.join(_HERE, "results")
 
 
 def pick_device():
@@ -39,11 +45,11 @@ def collect_preds(model, loader, device):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--data-dir", default="../data")
-    p.add_argument("--ckpt", default="checkpoints/best.pt")
+    p.add_argument("--data-dir", default=_DEFAULT_DATA)
+    p.add_argument("--ckpt", default=_DEFAULT_CKPT)
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--num-workers", type=int, default=2)
-    p.add_argument("--results-dir", default="results")
+    p.add_argument("--results-dir", default=_DEFAULT_RESULTS)
     args = p.parse_args()
 
     device = pick_device()
