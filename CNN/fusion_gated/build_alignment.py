@@ -1,20 +1,21 @@
 """Re-extract landmark features per image (dlib 20.0.1) and cache the alignment.
 
-WHY RE-EXTRACT (instead of replaying feature_data/)
----------------------------------------------------
-feature_data/ was produced with dlib 19.24.2, which does not build on this
-machine (modern CMake dropped support for its bundled pybind11). dlib 20.0.1
-produces slightly different landmarks AND a different success set, so the saved
-rows cannot be mapped back to specific images. We therefore re-run the SAME
-26-feature geometric pipeline with the installed dlib, directly in
-torchvision.ImageFolder order, giving every image its own feature vector and an
-exact per-image mask (1.0 = dlib detected a face, 0.0 = failed).
+WHY RE-EXTRACT (instead of replaying features/)
+------------------------------------------------
+features/ (written by extract_features.py) was produced with dlib 19.24.2,
+which does not build on this machine (modern CMake dropped support for its
+bundled pybind11). dlib 20.0.1 produces slightly different landmarks AND a
+different success set, so the saved rows cannot be mapped back to specific
+images. We therefore re-run the SAME 26-feature geometric pipeline with the
+installed dlib, directly in torchvision.ImageFolder order, giving every image
+its own feature vector and an exact per-image mask (1.0 = dlib detected a
+face, 0.0 = failed).
 
-The feature DEFINITIONS are identical to feature_extraction/extract_features.py
-(copied below — see note there). Only the dlib version differs. The scaler
-(mean/std) is RE-FIT on the freshly extracted train set, because the saved
-scaler_mean/std belong to the 19.24.2 value distribution; using it on 20.0.1
-values would mis-normalise. The re-fit stats are cached alongside the features.
+The feature DEFINITIONS are identical to extract_features.py (copied below —
+see note there). Only the dlib version differs. The scaler (mean/std) is
+RE-FIT on the freshly extracted train set, because the saved scaler_mean/std
+belong to the 19.24.2 value distribution; using it on 20.0.1 values would
+mis-normalise. The re-fit stats are cached alongside the features.
 
 LABEL SPACE: we iterate ImageFolder order (alphabetical: angry,disgust,fear,
 happy,neutral,sad,surprise) so labels are already in the CNN's label space.
@@ -31,23 +32,24 @@ Also writes cache/scaler.npz with mean,std,feature_names (the re-fit scaler).
 import os
 import numpy as np
 
+import sys
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.dirname(os.path.dirname(_HERE))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+from paths import PREDICTOR_PATH, features_dir
 
-FEATURE_DATA = os.path.join(_REPO_ROOT, "feature_data")
 DATA_DIR = os.path.join(_REPO_ROOT, "data")
 CACHE_DIR = os.path.join(_HERE, "cache")
-PREDICTOR_PATH = os.path.join(_REPO_ROOT, "landmark_detection", "models",
-                              "shape_predictor_68_face_landmarks.dat")
 
 # torchvision.ImageFolder order (alphabetical lowercase dir names).
 IMAGEFOLDER_ORDER = ["angry", "disgust", "fear", "happy", "neutral", "sad", "surprise"]
 
-# The 26 selected feature names, in feature_data column order — we reproduce the
-# same column order so the fusion model's lm_dim and feature semantics match the
-# project's documented 26-feature set.
+# The 26 selected feature names, in features/ column order — we reproduce the
+# same column order so the fusion model's lm_dim and feature semantics match
+# the project's documented 26-feature set. Written by extract_features.py.
 SELECTED_NAMES = [str(s) for s in np.load(
-    os.path.join(FEATURE_DATA, "feature_names.npy"), allow_pickle=True)]
+    os.path.join(features_dir(), "feature_names.npy"), allow_pickle=True)]
 
 TARGET_SIZE = 224  # extract_features.py best config: upscale=True, clahe=False
 
