@@ -1,0 +1,137 @@
+\documentclass[10pt]{article}
+% Packages
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{wrapfig}
+\usepackage{xcolor}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+\urlstyle{same}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{ML Project Report}
+\lhead{Doğa Devrim Çelik \& Weronika Zygis}
+\cfoot{\thepage}
+\titleformat{\section}{\normalsize\bfseries}{\thesection}{0.5em}{}
+\titleformat{\subsection}{\small\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{6pt}{3pt}
+\titlespacing*{\subsection}{0pt}{4pt}{2pt}
+\title{\textbf{\large Emotion Recognition Project Report}}
+\author{\small Doğa Devrim Çelik \& Weronika Zygis \\
+\small Applied Machine Learning in Python -- Ludwig-Maximilians-Universität München \\
+\small \texttt{wzygis@gmail.com} \quad \texttt{dogadevrimcelik@gmail.com}}
+\date{\vspace{-1em}\small\today}
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+\section{Task Overview}
+\begin{wraptable}{r}{0.42\textwidth}
+\centering
+\vspace{-1.4em}
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Emotion} & \textbf{Train} & \textbf{Test} & \textbf{Total}\\
+\midrule
+Angry    & 3995  & 958  & 4953\\
+Disgust  & 436   & 111  & 547\\
+Fear     & 4097  & 1024 & 5121\\
+Happy    & 7215  & 1774 & 8989\\
+Sad      & 4830  & 1247 & 6077\\
+Surprise & 3171  & 831  & 4002\\
+Neutral  & 4965  & 1233 & 6198\\
+\midrule
+\textbf{Total} & \textbf{28709} & \textbf{7178} & \textbf{35887}\\
+\bottomrule
+\end{tabular}
+\caption{\small FER-2013 class distribution.}
+\label{tab:fer_distribution}
+\end{wraptable}
+This project studies emotion recognition on \href{https://www.kaggle.com/datasets/msambare/fer2013/data}{FER-2013}, grayscale $48\times48$ face images labeled with 7 emotions (Angry, Disgust, Fear, Happy, Sad, Surprise, Neutral). We ask whether geometric features from dlib's 68-point facial landmarks are sufficient for classification, and compare a linear SVM, an RBF SVM, and a CNN trained directly on pixels.
+The dataset is heavily imbalanced (Table~\ref{tab:fer_distribution}: Happy has 16$\times$ more samples than Disgust) and has known label noise, with human annotator agreement around 65--70\% \cite{goodfellow2013challenges}, so no model can be expected to approach 100\% accuracy. Using landmark geometry instead of pixels also means the classifier only sees independent facial structure (eye/brow/mouth shape), so structurally similar emotions (Fear/Surprise, Neutral/Sad) are expected to be hard to separate. The $48\times48$ resolution is additionally a poor match for dlib (addressed in Section~\ref{sec:preprocessing}). Section~\ref{sec:preprocessing} describes how we try mitigate the resolution issue with upscaling. \textcolor{red}{CNN RESULTS HERE}
+\section{Methods}
+\subsection{Feature Extraction}
+\label{sec:preprocessing}
+\begin{wrapfigure}{r}{0.34\textwidth}
+\centering
+\vspace{-2.6em}
+\includegraphics[width=0.32\textwidth]{figures/compare_upscaling_best.png}\\[0.4em]
+\includegraphics[width=0.32\textwidth]{figures/figB_feature_heatmap.png}
+\caption{\small Top: detection rate, baseline vs.\ best upscaling. Bottom: feature--emotion correlation heatmap.}
+\label{fig:combined}
+\end{wrapfigure}
+Facial landmarks are extracted with dlib's \cite{king2009dlib} pretrained 68-point shape predictor \cite{kazemi2014one}. Since dlib's detector performs poorly at $48\times48$, we ablated 5 upscaling resolutions (96×96, 144×144, 192×192, 240×240, 288×288) against the raw baseline: 144$\times$144 upscaling gave the best detection rate ($\sim$9pp over baseline) and was used for all downstream results. We separately tested CLAHE contrast enhancement. It marginally improved dlib detection but consistently hurt SVM macro F1 (plausibly by amplifying noise at this resolution) as seen by our SVM ablation studies, so the final pipeline uses upscaling without CLAHE. A number of images fail detection even after upscaling (blank frames, logos, extreme lighting) and are dropped. All plots from this ablation and examples of hard fails and saved figures are documented in the \href{https://github.com/werka-z/emotion-recognition/tree/main/ablation_results}{GitHub ablation results subdir}.
+From the 68 landmarks we computed 28 geometric features (pairwise distances, ratios, and asymmetries), normalized by inter-ocular distance for scale invariance and inspired by the Facial Action Coding System \cite{FACS}. \href{https://en.wikipedia.org/wiki/Facial_Action_Coding_System}{The Wikipedia page of FACS} has a table explaining each muscle group and the resulting face movement. The explanations of each feature implemented is in the \href{https://github.com/werka-z/emotion-recognition/blob/main/SVM_notebook.ipynb}{Jupyter Notebook file in our repo}. Figure~\ref{fig:combined} (bottom) shows per-class feature correlations: Happy and Surprise each have a distinctive signature (smile features vs.\ eye/brow opening), while Angry, Sad, Fear, and Neutral cluster closely with no single strongly separating feature, foreshadowing the confusions seen in \ref{sec:results}. An ablation over feature count found 26 of 28 features optimal by macro F1 (28 by accuracy, difference $<0.003$) as seen from the \href{https://github.com/werka-z/emotion-recognition/blob/main/ablation_results/linear_svm_ablation/feature_sweep/fig_feature_count_sweep.png}{feature ablation figure}. The last two features in the figure were dropped resulting from the ablation, but it is also visible from the heatmap that they do not have any significant correlations with any of the labels. All SVM results below use the top 26 features. 
+\subsection{Linear SVM}
+We extended courselib's linear multiclass framework with a multiclass hinge loss and trained by (sub)gradient descent (gradient masking on margin-violating samples, inverse-decay learning rate), optionally with inverse-frequency class weighting to counter imbalance. A full ablation over preprocessing, feature scaling, class weighting, $C\in\{1,10,100,1000\}$, and feature count (1,536 configurations, ranked by macro F1) found: no feature scaling collapses performance (macro F1 $\approx$0.1--0.2); $C{=}1000$ is best within the grid; and class weighting trades $\sim$\textbf{5pp accuracy} for substantially better Disgust recall  ($0\%\to53\%$). The best accuracy without balancing expectedly maximizes the Happy predictions, the most sample heavy class, while sacrificing the least heavy one. The best macro F1 configuration ($C{=}1000$, clip-at-2$\sigma$ scaling, balanced weighting, 26 features) reaches \textbf{accuracy 0.4674, macro F1 0.3917} on the full test set, with train/test learning curves tracking closely (no overfitting). The whole ablation heatmaps can be found in the \href{https://github.com/werka-z/emotion-recognition/blob/main/ablation_results/linear_svm_ablation/26feat/fig_macro_f1_heatmap.png}{ablation figure}. 
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.5cm]{figures/fig_linear_learning_curve.png}
+        \caption{\small Train/test learning curves}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth,height=4.5cm]{figures/fig_best_cm.png}
+        \caption{\small Confusion matrix, best config}
+    \end{subfigure}
+    \caption{\small Linear SVM: learning curves and confusion matrix for the best configuration ($C{=}1000$, clip-2$\sigma$, balanced weighting).}
+    \label{fig:linear_details}
+\end{figure}
+\subsection{RBF SVM}
+We wrapped courselib's binary kernel SVM (solved via \texttt{cvxopt} QP) in a one-vs-rest scheme. The bandwidth $\sigma$ was initialized at the median pairwise-distance heuristic ($\sigma_\text{med}{=}5.94$) and searched over $\{0.5\times,1\times,2\times\}$ that value against $C\in\{0.1,1,10,100\}$ on a 6{,}000-sample subsample. All relevant plots such as the grid search heatmap and the metrics vs. training size plots are in our \href{https://github.com/werka-z/emotion-recognition/tree/main/ablation_results/rbf_grid_search}{grid results subfolder}. The best configuration was $C{=}10,\ \sigma{=}2.90$. Because \texttt{cvxopt}'s QP solver materializes the full $N{\times}N$ kernel matrix ($\approx$4GB per binary classifier at full scale), courselib's implementation cannot fit the full 22{,}578-sample training set in 16GB of memory. We report this configuration on a 9{,}996-sample subsample (\textbf{accuracy 0.5343, macro F1 0.4652}) alongside an sklearn \texttt{SVC} run with identical hyperparameters on the \emph{full} dataset as a reference point, since sklearn's libsvm/SMO solver never builds the full kernel matrix (\textbf{accuracy 0.5697, macro F1 0.5133}). Courselib's dual formulation does not expose per-sample weights, so no class weighting was used for either RBF run.
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth, height=6cm]{figures/fig_rbf_cm.png}
+        \caption{\small Courselib RBF confusion matrix}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth, height=6cm]{figures/fig_rbf_sklearn_cm.png}
+        \caption{\small Sklearn RBF confusion matrix}
+    \end{subfigure}
+    \caption{\small Confusion matrices, Courselib RBF model vs.\ Sklearn (full-dataset) RBF model.}
+    \label{fig:final_cms}
+\end{figure}
+\subsection{CNN Model}
+\textcolor{red}{TO BE WRITTEN}
+\section{Results}
+\label{sec:results}
+Table~\ref{tab:results} compares \textcolor{red}{ADD CNN RESULTS TO TABLE AND MODIFY THE PARAGRAPH} all three completed SVM configurations on the shared 26-feature, \texttt{up\_no\_cl}, clip-2$\sigma$ representation. Two things stand out. First, the RBF kernel beats the linear model on both metrics even when trained on fewer than half the samples, indicating the 7 classes are not linearly separable in this 26-dimensional feature space. Second, training-set size matters as much as the kernel choice: moving the RBF SVM from 9{,}996 to 22{,}578 samples (same $C,\sigma$) raises macro F1 more than switching from linear to (subsampled) RBF does, confirming that the memory limit was the main bottleneck. Third, the unweighted RBF SVM reaches 31.5\% Disgust recall without any class-weighting trick, comparable to what the linear SVM only achieves by explicitly reweighting the loss (at a $\sim$5pp accuracy cost elsewhere), suggesting some of what weighting compensates for in the linear case is limited model capacity, not only class imbalance. Sad and Fear remain the hardest classes throughout (recall $<$30\%), consistent with Figure~\ref{fig:combined} (bottom). Sad and Neutral share many similar features, as well as some with Fear. Therefore, it is expected that negative emotions without characteristic expressions are commonly misclassified as others. Some of the misclassification examples can be found in our \href{https://github.com/werka-z/emotion-recognition/tree/main/model_results}{model results folder}, in each model's subfolder.
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Metric} & \textbf{Linear SVM (courselib)} & \textbf{RBF SVM (courselib)} & \textbf{RBF SVM (sklearn)}\\
+\midrule
+Training samples & 22{,}578 (full) & 9{,}996 (subsample) & 22{,}578 (full) \\
+Accuracy  & 0.4674 & 0.5343 & 0.5697 \\
+Macro F1  & 0.3917 & 0.4652 & 0.5133 \\
+\bottomrule
+\end{tabular}
+\caption{\small Test-set results, all three SVM configurations. CNN row to be added by teammate.}
+\label{tab:results}
+\end{table}
+\vspace{-0.5em}
+
+\section{Discussion}
+The RBF SVM's advantage was driven mainly by training-set size, not kernel flexibility alone: courselib's \texttt{cvxopt}-based solver is memory-bound to $O(N^2)$ and could not use the full dataset, and its dual formulation has no mechanism for class weighting, unlike the linear model. Ablations were run sequentially rather than jointly on the RBF models (preprocessing fixed before scaling/hyperparameter search) due to the two-week timeframe, so interaction effects between preprocessing and RBF bandwidth cannot be ruled out; we treat this, and the \texttt{cvxopt} memory limit, as accepted, documented limitations rather than problems solved in this iteration. dlib's detector is a further bottleneck at FER-2013's $48\times48$ resolution, discarding a high number of images even after upscaling. Separately, reproducing the linear SVM's exact ablation-winning result required care: since \texttt{linear\_svm\_ablation.py} advances a single global RNG stream across 1{,}536 sequential fits, retraining the winner in isolation with a fresh seed does not reproduce the same numbers -- \texttt{final\_models.py} instead replays the exact prior RNG draws before training, a general lesson for any pipeline sharing one sequential RNG stream. With more time we would run all ablation axes jointly, implement a memory-efficient (SMO-style) solver inside courselib to enable full-dataset, class-weighted RBF training, and combine the geometric features with the CNN's pixel representation. \textcolor{red}{ADD CNN DISCUSSIONS}
+\begin{thebibliography}{9}
+\small
+\bibitem{king2009dlib} King, D. E. (2009). \textit{Dlib-ml: A machine learning toolkit}. JMLR, 10, 1755--1758.
+\bibitem{kazemi2014one} Kazemi, V., \& Sullivan, J. (2014). \textit{One millisecond face alignment with an ensemble of regression trees}. CVPR, 1867--1876.
+\bibitem{goodfellow2013challenges} Goodfellow, I. J. et al. (2013). \textit{Challenges in representation learning: A report on three machine learning contests}. ICONIP, 117--124.
+\bibitem{FACS} Ekman, P., Friesen, W. V., \& Hager, J. C. (2002). \textit{Facial Action Coding System: The Manual}. Salt Lake City: A Human Face.
+\end{thebibliography}
+\end{document}
