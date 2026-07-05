@@ -34,7 +34,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.dirname(os.path.dirname(_HERE))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
-from visualize import plot_learning_curve
+from CNN.visualize import plot_learning_curve
 
 _DEFAULT_CKPT = os.path.join(_HERE, "checkpoints")
 _DEFAULT_RESULTS = os.path.join(_HERE, "results")

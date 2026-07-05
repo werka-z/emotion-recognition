@@ -42,12 +42,12 @@ except ModuleNotFoundError:
     from model import EmotionCNNv2
     from data_utils import get_loaders
 
-# Shared, model-agnostic plotting lives at the repo root (visualize.py).
+# Shared, model-agnostic plotting lives at CNN/visualize.py.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.dirname(os.path.dirname(_HERE))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
-from visualize import plot_learning_curve
+from CNN.visualize import plot_learning_curve
 
 # Anchor I/O to fixed locations so outputs land under CNN/cnn_gap_aug_labelsmooth/ and the dataset
 # is found regardless of the current working directory.

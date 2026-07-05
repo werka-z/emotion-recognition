@@ -33,7 +33,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.dirname(os.path.dirname(_HERE))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
-from visualize import plot_confusion_matrix
+from CNN.visualize import plot_confusion_matrix
 
 _DEFAULT_DATA = os.path.join(_REPO_ROOT, "data")
 _DEFAULT_CKPT = os.path.join(_HERE, "checkpoints", "best.pt")

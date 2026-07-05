@@ -18,6 +18,16 @@ from torch.utils.flop_counter import FlopCounterMode
 from CNN.baseline_CNN.model import EmotionCNN
 from CNN.baseline_CNN.data_utils import get_loaders
 
+# Anchor I/O to fixed locations so outputs land under CNN/baseline_CNN/ and
+# the dataset is found regardless of the current working directory (e.g.
+# when invoked as `python -m CNN.baseline_CNN.train` from the repo root
+# instead of `python train.py` from this folder).
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO_ROOT = os.path.dirname(os.path.dirname(_HERE))
+_DEFAULT_DATA = os.path.join(_REPO_ROOT, "data")
+_DEFAULT_CKPT = os.path.join(_HERE, "checkpoints")
+_DEFAULT_RESULTS = os.path.join(_HERE, "results")
+
 
 def count_forward_flops_per_sample(model, x):
     """FLOPs for one forward pass at the given batch shape (analytical, not timed),
@@ -51,15 +61,15 @@ def evaluate(model, loader, device, criterion):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--data-dir", default="../data")
+    p.add_argument("--data-dir", default=_DEFAULT_DATA)
     p.add_argument("--epochs", type=int, default=40)
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--weight-decay", type=float, default=1e-4)
     p.add_argument("--val-split", type=float, default=0.1)
     p.add_argument("--num-workers", type=int, default=2)
-    p.add_argument("--ckpt-dir", default="checkpoints")
-    p.add_argument("--results-dir", default="results")
+    p.add_argument("--ckpt-dir", default=_DEFAULT_CKPT)
+    p.add_argument("--results-dir", default=_DEFAULT_RESULTS)
     p.add_argument("--seed", type=int, default=42)
     args = p.parse_args()
 
