@@ -5,3 +5,5 @@ __pycache__
 .DS_Store
 checkpoints/*.pt
 shape_predictor_68_face_landmarks.dat
+CNN/*/checkpoints_smoketest/
+CNN/*/results_smoketest/
