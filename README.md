@@ -1,10 +1,10 @@
 # Emotion Recognition from Facial Landmarks — FER-2013
 
-The main runnable scripts are [`SVM_notebook.ipynb`](https://github.com/werka-z/emotion-recognition/edit/main/README.md#:~:text=SVM_notebook.ipynb) and [`CNN_notebook.ipynb`](https://github.com/werka-z/emotion-recognition/edit/main/README.md#:~:text=CNN_notebook.ipynb) for SVM and CNN experiments respectively. Alongside the notebooks, see `PIPELINE.md` and `CNN/README.md` for instructions. 
-
-
 Course project for *Applied Machine Learning in Python* (LMU München).
 Doğa Devrim Çelik & Weronika Zygis.
+
+The main runnable scripts are [`SVM_notebook.ipynb`](https://github.com/werka-z/emotion-recognition/edit/main/README.md#:~:text=SVM_notebook.ipynb) and [`CNN_notebook.ipynb`](https://github.com/werka-z/emotion-recognition/edit/main/README.md#:~:text=CNN_notebook.ipynb) for SVM and CNN experiments respectively. Alongside the notebooks, see `PIPELINE.md` and `CNN/README.md` for instructions. 
+
 
 We classify the seven FER-2013 emotions (angry, disgust, fear, happy, neutral, sad, surprise) three ways and compare them: **classical SVMs on handcrafted geometric
 landmark features → CNNs on raw pixels → a fused model that merges the two.**
