@@ -1,7 +1,9 @@
-# emotion-recognition
+# emotion-recognition — SVM pipeline
 
-Facial emotion recognition on FER-2013 using dlib 68-landmark geometric
-features and SVMs (linear + RBF).
+The classical/SVM side of the project: FER-2013 emotion recognition from dlib
+68-landmark geometric features with SVMs (linear + RBF). This file documents the
+SVM scripts, their run order, and the environments they need. For the CNN models
+, see `CNN/README.md` and `CNN_notebook.ipynb`.
 
 ## Repo structure
 
@@ -27,15 +29,14 @@ features and SVMs (linear + RBF).
 │                                     # (best condition/params from the ablations above) —
 │                                     # shared input for every model below
 ├── features/                        # output of extract_features.py — X/y/paths .npy files,
-│                                     # read by both models/svm/ and models/cnn/
+│                                     # read by the SVM models (and the CNN fusion cache)
 ├── models/
-│   ├── svm/
-│   │   ├── final_models_sklearn.py  # final trained Sklearn RBF SVM script (not ablations)
-│   │   └── final_models.py          # final trained courselib SVM scripts (not ablations)
-│   └── cnn/                         # CNN model scripts
-└── model_results/                   # final model outputs, mirrors ablation_results/ pattern
-    ├── svm/
-    └── cnn/
+│   └── svm/
+│       ├── final_models_sklearn.py  # final trained sklearn RBF SVM script (not ablations)
+│       └── final_models.py          # final trained courselib SVM scripts (not ablations)
+├── model_results/                   # final SVM outputs, mirrors ablation_results/ pattern
+│   └── svm/
+└── CNN/                             # CNN models (own README section; see repo-root README.md)
 ```
 
 `data/` and `shape_predictor_68_face_landmarks.dat` are gitignored (too
@@ -72,16 +73,20 @@ large / not ours to redistribute). To run anything, set them up locally:
 
 ## Environments
 
-Two conda environments are used, matching each script's header comment:
+Two conda environments cover the whole project, matching each script's header
+comment:
 
-- **fer_feature_extraction** — `compare_upscaling.py`, `plot_upscaling.py`,
+- **fer_feature_extraction** (dlib) — the feature-extraction / preprocessing
+  scripts: `compare_upscaling.py`, `plot_upscaling.py`,
   `show_detection_failures.py`, `compare_all_preprocessing.py`,
-  `plot_clahe.py`, `extract_ablation.py`
-- **appliedml** — `linear_svm_ablation.py`, `rbf_parameters.py`
+  `plot_clahe.py`, `extract_ablation.py`, `extract_features.py`
+- **appliedml** — everything else: the SVM scripts
+  (`linear_svm_ablation.py`, `rbf_parameters.py`, `models/svm/*`) and the
+  CNN pipeline. Both `SVM_notebook.ipynb` and `CNN_notebook.ipynb` run under
+  this env.
 
-See `environment.yml` for `fer_feature_extraction` and
-`environment_appliedml.yml` for `appliedml` (create with
-`conda env create -f <file>`).
+Create them with `conda env create -f <file>`: `environment.yml` builds
+`fer_feature_extraction`, `environment_appliedml.yml` builds `appliedml`.
 
 ## Running the Jupyter Notebook
 
@@ -124,8 +129,8 @@ cd emotion-recognition-test
 conda env create -f environment.yml
 # This creates fer_feature_extraction
 
-# appliedml environment
-conda env create -f environment_aml.yml
+# appliedml environment (SVMs + CNNs)
+conda env create -f environment_appliedml.yml
 # This creates appliedml
 ```
 
@@ -202,14 +207,14 @@ Each script writes to its own subfolder under `ablation_results/`:
 the best condition/parameters found by the ablations above, and saves
 to `features/` — shared input data for every model in `models/`.
 
-Scripts in `models/svm/` and `models/cnn/` should import from `paths.py`
-the same way the ablation scripts do:
+Scripts in `models/svm/` import from `paths.py` the same way the ablation
+scripts do:
 
 ```python
 from paths import features_dir, model_results_subdir
 
 IN_DIR  = features_dir()
-OUT_DIR = model_results_subdir("svm", "linear_svm_final")   # or "cnn", ...
+OUT_DIR = model_results_subdir("svm", "linear_svm_final")
 ```
 
 This keeps `features/` as a single shared source of truth (no

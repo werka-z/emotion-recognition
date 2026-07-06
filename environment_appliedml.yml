@@ -21,12 +21,10 @@ dependencies:
     - python-dateutil==2.9.0.post0
     - six==1.17.0
     - scikit-learn==1.7.2
-# Notes
-# ─────
-# Tested on MacBook with Apple M5 chip
-# Also requires courselib (AppliedML repo) — not a pip package, see
-# README.md for setup (COURSELIB_PATH).
-#
+    - torch>=2.1
+    - torchvision>=0.16
+
+
 # To recreate this environment:
-#   conda env create -f environment_aml.yml
-#   conda activate aml
+#   conda env create -f environment_appliedml.yml
+#   conda activate appliedml

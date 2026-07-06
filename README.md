@@ -3,8 +3,7 @@
 Course project for *Applied Machine Learning in Python* (LMU München).
 Doğa Devrim Çelik & Weronika Zygis.
 
-We classify the seven FER-2013 emotions (angry, disgust, fear, happy, neutral, sad,
-surprise) three ways and compare them: **classical SVMs on handcrafted geometric
+We classify the seven FER-2013 emotions (angry, disgust, fear, happy, neutral, sad, surprise) three ways and compare them: **classical SVMs on handcrafted geometric
 landmark features → CNNs on raw pixels → a fused model that merges the two.**
 
 Geometry gives a cheap, interpretable model but caps out well
@@ -129,9 +128,13 @@ side-by-side breakdown (per-model FLOPs, solver scaling, ablation scope) is in
 ## Repository layout
 
 ```
-feature_extraction/   dlib landmark + 26-feature geometric pipeline, upscaling/CLAHE ablations
-landmark_detection/   detection experiments (dlib vs mediapipe), failure analysis
-feature_data/         precomputed 26 landmark features + scaler (train/test .npy)
+paths.py              repo-root-anchored path resolution — every script imports from here
+ablation_studies/     SVM-side ablations: upscaling, CLAHE, feature selection, RBF grid search
+ablation_results/     ablation outputs, one subfolder per study
+extract_features.py   final single-condition dlib landmark + 26-feature extraction
+features/             output of extract_features.py — X/y/paths + scaler .npy (shared by SVMs)
+models/svm/           final SVM scripts (courselib cvxopt + sklearn reference)
+model_results/svm/    final SVM outputs
 CNN/
   visualize.py              shared, model-agnostic plotting helpers
   baseline_CNN/            VGG-style baseline
@@ -140,22 +143,33 @@ CNN/
   fusion_gated/            gated landmark–CNN fusion + 4-way ablation
 figures/              plots used in report.tex
 report.tex            full write-up
-CNN_notebook.ipynb    runs the full CNN pipeline end to end
+SVM_notebook.ipynb    runs the full classical/SVM pipeline end to end
+CNN_notebook.ipynb    runs all four CNN models end to end
 ```
+
+`PIPELINE.md` documents the SVM-side scripts and their run order in detail.
 
 ## Running
 
 Each pipeline has a notebook that runs it end to end: `SVM_notebook.ipynb`
-for the classical pipeline, `CNN_notebook.ipynb` for all 4 CNN models. To run
-scripts manually instead:
+for the classical pipeline, `CNN_notebook.ipynb` for all four CNN models.
+
+Two conda environments cover everything:
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+conda env create -f environment.yml            # fer_feature_extraction — dlib feature extraction
+conda env create -f environment_appliedml.yml  # appliedml — SVMs + CNNs (sklearn, cvxopt, torch)
+```
 
-# classical: see feature_extraction/README_extraction.md
+Only the dlib feature-extraction step needs `fer_feature_extraction`; the SVM
+and CNN notebooks both run under `appliedml`. `SVM_notebook.ipynb` tells you
+when to switch kernels; the SVM side also needs the courselib `AppliedML` repo
+(see `PIPELINE.md`).
 
-# CNNs (from repo root)
+To run the CNN scripts manually instead of via the notebook (from repo root,
+`appliedml` env):
+
+```bash
 python -m CNN.baseline_CNN.train           && python -m CNN.baseline_CNN.test
 python -m CNN.cnn_gap_aug_labelsmooth.train && python -m CNN.cnn_gap_aug_labelsmooth.test --tta
 python -m CNN.cnn_resnet_se_mixup_ema.train && python -m CNN.cnn_resnet_se_mixup_ema.test --tta-multi
