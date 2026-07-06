@@ -1,5 +1,8 @@
 # Emotion Recognition from Facial Landmarks — FER-2013
 
+The main runnable scripts are `SVM_notebook.ipynb` and `CNN_notebook.ipynb` for SVM and CNN experiments respectively. Alongside the notebooks, see `PIPELINE.md` and `CNN/README.md` for instructions. 
+
+
 Course project for *Applied Machine Learning in Python* (LMU München).
 Doğa Devrim Çelik & Weronika Zygis.
 
