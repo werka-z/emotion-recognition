@@ -24,7 +24,7 @@ If yours lives elsewhere, set the `COURSELIB_PATH` environment
   export COURSELIB_PATH="/path/to/AppliedML"
 ```
 
-## Environments
+### Environments
 
 Two conda environments cover the whole project:
 
