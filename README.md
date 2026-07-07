@@ -3,7 +3,7 @@
 Course project for *Applied Machine Learning in Python* (LMU München).
 Doğa Devrim Çelik & Weronika Zygis.
 
-The main runnable scripts are [`SVM_notebook.ipynb`](https://github.com/werka-z/emotion-recognition/edit/main/README.md#:~:text=SVM_notebook.ipynb) and [`CNN_notebook.ipynb`](https://github.com/werka-z/emotion-recognition/edit/main/README.md#:~:text=CNN_notebook.ipynb) for SVM and CNN experiments respectively. Alongside the notebooks, see `PIPELINE.md` and `CNN/README.md` for instructions. 
+The main runnable scripts are [`SVM_notebook.ipynb`](SVM_notebook.ipynb) and [`CNN_notebook.ipynb`](CNN_notebook.ipynb) for SVM and CNN experiments respectively. Each notebook runs its pipeline end to end and narrates every step inline; the [Running](#running) section below covers setup and the manual command-line equivalents.
 
 
 We classify the seven FER-2013 emotions (angry, disgust, fear, happy, neutral, sad, surprise) three ways and compare them: **classical SVMs on handcrafted geometric
@@ -150,12 +150,15 @@ SVM_notebook.ipynb    runs the full classical/SVM pipeline end to end
 CNN_notebook.ipynb    runs all four CNN models end to end
 ```
 
-`PIPELINE.md` documents the SVM-side scripts and their run order in detail.
-
 ## Running
 
-Each pipeline has a notebook that runs it end to end: `SVM_notebook.ipynb`
-for the classical pipeline, `CNN_notebook.ipynb` for all four CNN models.
+Each pipeline has a notebook that runs it end to end and narrates every step
+inline: `SVM_notebook.ipynb` for the classical pipeline, `CNN_notebook.ipynb`
+for all four CNN models. The notebooks are the canonical way to run the
+project; the sections below cover setup and the manual command-line
+equivalents.
+
+### Environments
 
 Two conda environments cover everything:
 
@@ -164,13 +167,104 @@ conda env create -f environment.yml            # fer_feature_extraction — dlib
 conda env create -f environment_appliedml.yml  # appliedml — SVMs + CNNs (sklearn, cvxopt, torch)
 ```
 
-Only the dlib feature-extraction step needs `fer_feature_extraction`; the SVM
-and CNN notebooks both run under `appliedml`. `SVM_notebook.ipynb` tells you
-when to switch kernels; the SVM side also needs the courselib `AppliedML` repo
-(see `PIPELINE.md`).
+Only the dlib feature-extraction / preprocessing step needs
+`fer_feature_extraction`; everything else (SVMs and CNNs) runs under
+`appliedml`. `SVM_notebook.ipynb` tells you when to switch kernels.
 
-To run the CNN scripts manually instead of via the notebook (from repo root,
-`appliedml` env):
+### courselib (AppliedML repo)
+
+The SVM ablation scripts (`ablation_studies/linear_svm_ablation.py`,
+`ablation_studies/rbf_parameters.py`) and the final courselib models require the
+course library. By default `paths.py` expects it cloned as a sibling folder next
+to this repo:
+
+```
+parent_folder/
+├── emotion-recognition/   (this repo)
+└── AppliedML/             (courselib — git clone https://github.com/mselezniova/AppliedML.git)
+```
+
+If yours lives elsewhere, set `COURSELIB_PATH` before running those scripts:
+
+```bash
+export COURSELIB_PATH="/path/to/AppliedML"
+```
+
+### Data & dlib detector
+
+`data/` and `shape_predictor_68_face_landmarks.dat` are set up locally (not in
+the repo):
+
+- Download FER-2013 from [Kaggle](https://www.kaggle.com/datasets/msambare/fer2013/data)
+  and place it under `data/`.
+- Download dlib's detector from [dlib.net](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2),
+  decompress the `.bz2` into a `.dat`, and place it at the repo root.
+
+```
+emotion-recognition/
+├── data/
+│     ├── train/<Emotion>/*.jpg
+│     └── test/<Emotion>/*.jpg
+└── shape_predictor_68_face_landmarks.dat
+```
+
+### Running the SVM pipeline manually
+
+All paths resolve via `paths.py` (repo-root-anchored), so run every command from
+the repo root. Scripts must run in this order — later ones read earlier outputs.
+Note the kernel/env switches:
+
+```bash
+conda activate fer_feature_extraction
+python ablation_studies/compare_upscaling.py
+python ablation_studies/plot_upscaling.py
+python ablation_studies/show_detection_failures.py
+python ablation_studies/compare_all_preprocessing.py
+python ablation_studies/plot_clahe.py
+python ablation_studies/extract_ablation.py
+
+conda activate appliedml
+python ablation_studies/linear_svm_ablation.py
+python ablation_studies/rbf_parameters.py
+
+python models/svm/final_models.py
+python models/svm/final_models_sklearn.py
+```
+
+To skip the ablation and just reproduce the final models:
+
+```bash
+conda activate fer_feature_extraction
+python ablation_studies/extract_ablation.py   # or: python extract_features.py for the final features
+
+conda activate appliedml
+python models/svm/final_models.py
+python models/svm/final_models_sklearn.py
+```
+
+`extract_features.py` runs feature extraction once with the best
+condition/parameters found by the ablations and writes to `features/` — the
+shared input for every model in `models/`.
+
+Each script writes to its own subfolder:
+
+| Script | Output folder | Contents |
+|---|---|---|
+| `compare_upscaling.py` | `ablation_results/upscaling/` | `upscaling_results.npy` |
+| `plot_upscaling.py` | `ablation_results/upscaling/` | `compare_upscaling.png`, `compare_upscaling_best.png` |
+| `show_detection_failures.py` | `ablation_results/upscaling/` | `failures_recovered.png`, `failures_hard.png` |
+| `compare_all_preprocessing.py` | `ablation_results/clahe/` | `detection_counts.npy` |
+| `plot_clahe.py` | `ablation_results/clahe/` | `compare_clahe.png` |
+| `extract_ablation.py` | `ablation_results/features/` | per-condition `X`/`y`/`image_paths` `.npy` files |
+| `linear_svm_ablation.py` | `ablation_results/linear_svm_ablation/` | feature sweep + full ablation figures/results |
+| `rbf_parameters.py` | `ablation_results/rbf_grid_search/` | grid search figures/results |
+| `extract_features.py` | `features/` | final X/y/paths + scaler `.npy` |
+| `final_models.py` | `model_results/svm/final_models/` | final courselib SVM models |
+| `final_models_sklearn.py` | `model_results/svm/final_models_sklearn/` | final sklearn SVM model |
+
+### Running the CNN pipeline manually
+
+From repo root, `appliedml` env:
 
 ```bash
 python -m CNN.baseline_CNN.train           && python -m CNN.baseline_CNN.test
