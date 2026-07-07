@@ -5,15 +5,9 @@ The classical/SVM side of the project: FER-2013 emotion recognition from dlib
 SVM scripts, their run order, and the environments they need. For the CNN models
 , see `CNN/README.md` and `CNN_notebook.ipynb`.
 
-## Repo structure
+## Repository structure:
 
-`data/` and `shape_predictor_68_face_landmarks.dat` are gitignored (too
-large / not ours to redistribute). To run anything, set them up locally:
-
-
-  where `<Emotion>` is one of: Angry, Disgust, Fear, Happy, Sad, Surprise, Neutral.
-
-- **courselib (AppliedML repo)** — required by `linear_svm_ablation.py`
+**courselib (AppliedML repo)** is required by `linear_svm_ablation.py`
   and `rbf_parameters.py`. By default, `paths.py` expects it cloned as a
   sibling folder next to this repo:
 
@@ -23,7 +17,7 @@ large / not ours to redistribute). To run anything, set them up locally:
   └── AppliedML/                (courselib)
 ```
 
-  If yours lives elsewhere, set the `COURSELIB_PATH` environment
+If yours lives elsewhere, set the `COURSELIB_PATH` environment
   variable before running those scripts:
 
 ```bash
@@ -34,25 +28,14 @@ large / not ours to redistribute). To run anything, set them up locally:
 
 Two conda environments cover the whole project:
 
-- **fer_feature_extraction** (dlib) — the feature-extraction / preprocessing
-  scripts: `compare_upscaling.py`, `plot_upscaling.py`,
-  `show_detection_failures.py`, `compare_all_preprocessing.py`,
-  `plot_clahe.py`, `extract_ablation.py`, `extract_features.py`
+- **fer_feature_extraction** (dlib) — the feature-extraction / preprocessing scripts
 - **appliedml** — everything else
 
 Create them with `conda env create -f <file>`: `environment.yml` builds
 `fer_feature_extraction`, `environment_appliedml.yml` builds `appliedml`.
 
-## Running the Jupyter Notebooks
-
-### S
-
-After cloning to such a structure
-```
-parent_folder/
-├── emotion-recognition-test/  (this repo)
-└── AppliedML/                 (courselib)
-```
+### data
+`data/` and `shape_predictor_68_face_landmarks.dat` need to be set up locally:
 
 Download the data from [Kaggle](https://www.kaggle.com/datasets/msambare/fer2013/data) and place it in the `data` folder of the `emotion-recognition-test` repo. Also download dlib's detector from dlib's model zoo at [dlib.net](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2), click on the `.bz2` file to turn it into a `.dat` file, and place the `.dat` file at the repo root.
 
