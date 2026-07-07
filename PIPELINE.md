@@ -7,52 +7,11 @@ SVM scripts, their run order, and the environments they need. For the CNN models
 
 ## Repo structure
 
-```
-.
-├── paths.py                         # shared path resolution — all scripts import from here
-├── ablation_studies/                # ablation pipeline, run in order (see below)
-│   ├── compare_upscaling.py
-│   ├── plot_upscaling.py
-│   ├── show_detection_failures.py
-│   ├── compare_all_preprocessing.py
-│   ├── plot_clahe.py
-│   ├── extract_ablation.py
-│   ├── linear_svm_ablation.py
-│   └── rbf_parameters.py
-├── ablation_results/                # ablation outputs, one subfolder per study
-│   ├── upscaling/
-│   ├── clahe/
-│   ├── features/
-│   ├── linear_svm_ablation/
-│   └── rbf_grid_search/
-├── extract_features.py              # final single-condition feature extraction
-│                                     # (best condition/params from the ablations above) —
-│                                     # shared input for every model below
-├── features/                        # output of extract_features.py — X/y/paths .npy files,
-│                                     # read by the SVM models (and the CNN fusion cache)
-├── models/
-│   └── svm/
-│       ├── final_models_sklearn.py  # final trained sklearn RBF SVM script (not ablations)
-│       └── final_models.py          # final trained courselib SVM scripts (not ablations)
-├── model_results/                   # final SVM outputs, mirrors ablation_results/ pattern
-│   └── svm/
-└── CNN/                             # CNN models (own README section; see repo-root README.md)
-```
-
 `data/` and `shape_predictor_68_face_landmarks.dat` are gitignored (too
 large / not ours to redistribute). To run anything, set them up locally:
 
-- **data/** — place the FER-2013 split as:
-
-```
-  data/
-  ├── train/<Emotion>/*.jpg
-  └── test/<Emotion>/*.jpg
-```
 
   where `<Emotion>` is one of: Angry, Disgust, Fear, Happy, Sad, Surprise, Neutral.
-
-- **shape_predictor_68_face_landmarks.dat** — download from dlib's model zoo at [dlib.net](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2), click on the `.bz2` file to turn it into a `.dat` file, and place the `.dat` file at the repo root.
 
 - **courselib (AppliedML repo)** — required by `linear_svm_ablation.py`
   and `rbf_parameters.py`. By default, `paths.py` expects it cloned as a
@@ -73,35 +32,22 @@ large / not ours to redistribute). To run anything, set them up locally:
 
 ## Environments
 
-Two conda environments cover the whole project, matching each script's header
-comment:
+Two conda environments cover the whole project:
 
 - **fer_feature_extraction** (dlib) — the feature-extraction / preprocessing
   scripts: `compare_upscaling.py`, `plot_upscaling.py`,
   `show_detection_failures.py`, `compare_all_preprocessing.py`,
   `plot_clahe.py`, `extract_ablation.py`, `extract_features.py`
-- **appliedml** — everything else: the SVM scripts
-  (`linear_svm_ablation.py`, `rbf_parameters.py`, `models/svm/*`) and the
-  CNN pipeline. Both `SVM_notebook.ipynb` and `CNN_notebook.ipynb` run under
-  this env.
+- **appliedml** — everything else
 
 Create them with `conda env create -f <file>`: `environment.yml` builds
 `fer_feature_extraction`, `environment_appliedml.yml` builds `appliedml`.
 
-## Running the Jupyter Notebook
+## Running the Jupyter Notebooks
 
-### Step 1 — Clone repos
+### S
 
-On your terminal:
-
-```bash
-cd wherever/you/want/this/to/live/
-git clone https://github.com/werka-z/emotion-recognition.git emotion-recognition-test
-git clone https://github.com/mselezniova/AppliedML.git
-```
-
-At the end, you should have:
-
+After cloning to such a structure
 ```
 parent_folder/
 ├── emotion-recognition-test/  (this repo)
@@ -117,28 +63,12 @@ parent_folder/
 ├── AppliedML/                                     (courselib)
 └── emotion-recognition-test/                       (this repo)
     ├── data/                                       (downloaded data)
+    |     ├── train/<Emotion>/*.jpg
+    |     └── test/<Emotion>/*.jpg
     └── shape_predictor_68_face_landmarks.dat        (downloaded detector)
 ```
 
-### Step 2 — Create environments from yml files
-
-```bash
-cd emotion-recognition-test
-
-# dlib environment
-conda env create -f environment.yml
-# This creates fer_feature_extraction
-
-# appliedml environment (SVMs + CNNs)
-conda env create -f environment_appliedml.yml
-# This creates appliedml
-```
-
-### Step 3 — Run the notebook
-
-Open the Jupyter Notebook in your IDE and choose the kernel according to the markdown cells.
-
-It will warn you about when to switch kernels, and when it does, click on the "change kernel" button and select the appropriate kernel.
+Jupyter notebook in your IDE should warn you about when to switch kernels, and when it does, click on the "change kernel" button and select the appropriate kernel.
 
 ## Running the pipeline (with ablation)
 
@@ -166,7 +96,7 @@ python models/svm/final_models.py
 python models/svm/final_models_sklearn.py
 ```
 
-If you want to skip the ablation, just run:
+To skip the ablation, just run:
 
 ```bash
 conda activate fer_feature_extraction
@@ -178,11 +108,6 @@ conda activate appliedml
 python models/svm/final_models.py
 python models/svm/final_models_sklearn.py
 ```
-
-**Note:** `paths.py` locates the repo root by walking up to the nearest
-`.git` folder. This means it only works inside an actual git repo — run
-`git init` (or clone this repo) before running any script. Running from
-a plain folder with no `.git` will raise a `RuntimeError`.
 
 ## Results
 
@@ -203,20 +128,6 @@ Each script writes to its own subfolder under `ablation_results/`:
 
 ## Final feature extraction & models
 
-`extract_features.py` (repo root) runs feature extraction once, using
+`extract_features.py` runs feature extraction once, using
 the best condition/parameters found by the ablations above, and saves
 to `features/` — shared input data for every model in `models/`.
-
-Scripts in `models/svm/` import from `paths.py` the same way the ablation
-scripts do:
-
-```python
-from paths import features_dir, model_results_subdir
-
-IN_DIR  = features_dir()
-OUT_DIR = model_results_subdir("svm", "linear_svm_final")
-```
-
-This keeps `features/` as a single shared source of truth (no
-duplicated extraction per model), and keeps each model's results
-separated under `model_results/<model_type>/<name>/`.
